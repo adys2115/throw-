@@ -40,7 +40,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
--- Zadanie 1: Automatyczne klikanie boostów (x2 / mult / boost) oraz wykrywanie paska +20
 task.spawn(function()
     while true do
         if running then
@@ -48,16 +47,18 @@ task.spawn(function()
                 for _, gui in ipairs(PlayerGui:GetDescendants()) do
                     if not running then break end
                     
-                    -- Obsługa wykrywania paska z wartością "+20"
                     if gui:IsA("TextLabel") or gui:IsA("TextBox") or gui:IsA("TextButton") then
                         if gui.Text == "+20" or gui.Text:find("20") then
-                            VirtualInputManager:SendMouseButtonEvent(400, 300, 0, true, game, 0)
-                            task.wait()
-                            VirtualInputManager:SendMouseButtonEvent(400, 300, 0, false, game, 0)
+                            local pos = gui.AbsolutePosition + (gui.AbsoluteSize / 2)
+                            if pos.X > 0 and pos.Y > 0 then
+                                VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 0)
+                                task.wait()
+                                VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, false, game, 0)
+                                task.wait(0.2)
+                            end
                         end
                     end
 
-                    -- Obsługa przycisków boostów
                     if gui:IsA("TextButton") or gui:IsA("ImageButton") then
                         if gui ~= Button and gui.AbsoluteSize.X > 0 and gui.AbsolutePosition.X > 0 then
                             local text = ""
