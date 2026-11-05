@@ -40,39 +40,41 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
+-- Szybki wątek do obsługi paska +20
 task.spawn(function()
     while true do
         if running then
             pcall(function()
                 for _, gui in ipairs(PlayerGui:GetDescendants()) do
                     if not running then break end
-                    
-                    -- Precyzyjne wykrywanie wyłącznie "+20" bez mniejszych wartości
-                    if gui:IsA("TextLabel") or gui:IsA("TextBox") or gui:IsA("TextButton") then
+                    if gui:IsA("TextLabel") or gui:IsA("TextBox") then
                         if gui.Text == "+20" then
                             local pos = gui.AbsolutePosition + (gui.AbsoluteSize / 2)
                             if pos.X > 0 and pos.Y > 0 then
                                 VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 0)
                                 task.wait()
                                 VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, false, game, 0)
-                                task.wait(0.2)
+                                task.wait(0.5) -- Odczekaj po kliknięciu, aby nie spamować
                             end
                         end
                     end
+                end
+            end)
+        end
+        task.wait(0.02)
+    end
+end)
 
-                    -- Obsługa przycisków boostów
+-- Wolniejszy wątek do obsługi boostów (raz na sekundę, żeby nie lagować)
+task.spawn(function()
+    while true do
+        if running then
+            pcall(function()
+                for _, gui in ipairs(PlayerGui:GetDescendants()) do
+                    if not running then break end
                     if gui:IsA("TextButton") or gui:IsA("ImageButton") then
                         if gui ~= Button and gui.AbsoluteSize.X > 0 and gui.AbsolutePosition.X > 0 then
-                            local text = ""
-                            if gui:IsA("TextButton") then
-                                text = gui.Text
-                            end
-                            for _, child in ipairs(gui:GetChildren()) do
-                                if child:IsA("TextLabel") or child:IsA("TextBox") then
-                                    text = text .. " " .. child.Text
-                                end
-                            end
-                            
+                            local text = gui:IsA("TextButton") and gui.Text or ""
                             local combined = (text .. " " .. gui.Name):lower()
                             if combined:find("x2") or combined:find("mult") or combined:find("boost") then
                                 local pos = gui.AbsolutePosition + (gui.AbsoluteSize / 2)
@@ -82,7 +84,6 @@ task.spawn(function()
                                 if getconnections then
                                     pcall(function()
                                         for _, conn in ipairs(getconnections(gui.MouseButton1Click)) do conn:Fire() end
-                                        for _, conn in ipairs(getconnections(gui.Activated)) do conn:Fire() end
                                     end)
                                 end
                             end
@@ -91,6 +92,6 @@ task.spawn(function()
                 end
             end)
         end
-        task.wait(0.1)
+        task.wait(1)
     end
 end)
