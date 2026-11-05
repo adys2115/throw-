@@ -47,8 +47,9 @@ task.spawn(function()
                 for _, gui in ipairs(PlayerGui:GetDescendants()) do
                     if not running then break end
                     
+                    -- Precyzyjne wykrywanie wyłącznie "+20" bez mniejszych wartości
                     if gui:IsA("TextLabel") or gui:IsA("TextBox") or gui:IsA("TextButton") then
-                        if gui.Text == "+20" or gui.Text:find("20") then
+                        if gui.Text == "+20" then
                             local pos = gui.AbsolutePosition + (gui.AbsoluteSize / 2)
                             if pos.X > 0 and pos.Y > 0 then
                                 VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 0)
@@ -59,6 +60,7 @@ task.spawn(function()
                         end
                     end
 
+                    -- Obsługa przycisków boostów
                     if gui:IsA("TextButton") or gui:IsA("ImageButton") then
                         if gui ~= Button and gui.AbsoluteSize.X > 0 and gui.AbsolutePosition.X > 0 then
                             local text = ""
@@ -89,6 +91,6 @@ task.spawn(function()
                 end
             end)
         end
-        task.wait(0.05)
+        task.wait(0.1)
     end
 end)
